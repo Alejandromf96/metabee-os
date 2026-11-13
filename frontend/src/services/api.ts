@@ -1,5 +1,15 @@
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
 
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
+
 export async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
@@ -20,7 +30,7 @@ export async function apiFetch<T>(
         : response.status === 422
           ? 'Revisa los datos ingresados'
           : `Error ${response.status}`;
-    throw new Error(detail);
+    throw new ApiError(detail, response.status);
   }
 
   return response.json() as Promise<T>;
