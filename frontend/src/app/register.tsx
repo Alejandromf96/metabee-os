@@ -101,7 +101,7 @@ export default function Register() {
 
         <Text style={styles.footer}>
           ¿Ya tienes cuenta?{' '}
-          <Link href="login" style={styles.link}>
+          <Link href="/login" style={styles.link}>
             Iniciar sesión
           </Link>
         </Text>
