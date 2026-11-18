@@ -1,32 +1,28 @@
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { Redirect } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { apiFetch } from '../services/api';
+import { Button } from '../components/Button';
+import { Loading } from '../components/Loading';
+import { useAuth } from '../context/AuthContext';
 import { colors, spacing } from '../theme/colors';
 
-export default function Index() {
-  const [status, setStatus] = useState<'loading' | 'ok' | 'error'>('loading');
-  const [message, setMessage] = useState('');
+export default function Home() {
+  const { user, loading, signOut } = useAuth();
 
-  useEffect(() => {
-    apiFetch<{ database: string }>('/health/db')
-      .then(() => setStatus('ok'))
-      .catch((error: Error) => {
-        setMessage(error.message);
-        setStatus('error');
-      });
-  }, []);
+  if (loading) {
+    return <Loading />;
+  }
+  if (!user) {
+    return <Redirect href="login" />;
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Metabee OS</Text>
-      {status === 'loading' && <ActivityIndicator color={colors.cyan} />}
-      {status === 'ok' && (
-        <Text style={styles.ok}>API y base de datos conectadas</Text>
-      )}
-      {status === 'error' && (
-        <Text style={styles.error}>Sin conexión: {message}</Text>
-      )}
+      <Text style={styles.text}>Sesión iniciada como {user.email}</Text>
+      <View style={styles.action}>
+        <Button title="Cerrar sesión" onPress={signOut} />
+      </View>
     </View>
   );
 }
@@ -38,13 +34,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.md,
+    padding: spacing.lg,
   },
   title: { color: colors.text, fontSize: 32, fontWeight: '700' },
-  ok: { color: colors.success, fontSize: 16 },
-  error: {
-    color: colors.danger,
-    fontSize: 16,
-    textAlign: 'center',
-    padding: spacing.md,
-  },
+  text: { color: colors.cyan, fontSize: 16, textAlign: 'center' },
+  action: { marginTop: spacing.md, alignSelf: 'stretch' },
 });
